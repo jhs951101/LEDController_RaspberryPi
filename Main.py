@@ -1,37 +1,33 @@
 from controller import httpController
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 
 
-ledPins = {'red': 18, 'yellow': 19, 'green': 20,}
+ledPins = {'red': 17, 'yellow': 27, 'green': 22,}
 
 def turnOffAllLeds():
+    global ledPins
     print('', end='')
 
-    """
-    GPIO.setmode(GPIO.BOARD)
+    GPIO.setmode(GPIO.BCM)
 
     for pin in ledPins.keys():
         GPIO.setup(ledPins[pin], GPIO.OUT)
         GPIO.cleanup(ledPins[pin])
-    """
 
 def turnOnLed(pin):
-    print(pin, '번 PIN Turn On!')
+    global ledPins
+    print(pin, 'PIN Turn On!')
 
-    """
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, True)
-    """
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(ledPins[pin], GPIO.OUT)
+    GPIO.output(ledPins[pin], True)
 
 
 currentLed = ''
 httpController = httpController.HttpController()
 
 while True:
-    response = ''  # http get
-
     response = httpController.get('https://tails1101.cafe24.com/test/getled.php',
         None
     )
@@ -40,7 +36,7 @@ while True:
         if response['success']:
             if response['name'] != currentLed:
                 turnOffAllLeds()
-                turnOnLed(ledPins[response['name']])
+                turnOnLed(response['name'])
                 currentLed = response['name']
         else:
             print('통신 중 오류가 발생하였습니다.')
